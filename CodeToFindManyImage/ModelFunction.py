@@ -1,12 +1,12 @@
-from threading import currentThread
+# from threading import currentThread
 import cv2
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-from keras_preprocessing import image
+# from keras.preprocessing import image
 import csv
-from math import sqrt
-from math import pow
+# from math import sqrt
+# from math import pow
 
 model = keras.models.load_model('./model_1_4_new')
 
@@ -107,42 +107,42 @@ def predictAndDrawBasicLine(imgInput, tuplePoints):
         imgResult = cv2.bitwise_and(imgResize, imgResize, mask=mark)
         imgResult = cv2.cvtColor(imgResult, cv2.COLOR_BGR2RGB)
 
-        imgResize = image.img_to_array(imgResult)
+        imgResize = tf.keras.utils.img_to_array(imgResult)
         imgResize = imgResize/255.
         imgResize = np.array([imgResize])
 
         #predict_result = model.predict(imgResize)
 
         # opening the csv file
-        # with open('./data2.csv') as csv_file:
-        #     # reading the csv file using DictReader
-        #     csv_reader = csv.DictReader(csv_file)
-        #     # converting the file to dictionary
-        #     # by first converting to list
-        #     # and then converting the list to dict
-        #     dict_from_csv = dict(list(csv_reader)[0])
-        #     # making a list from the keys of the dict
-        #     list_of_column_names = list(dict_from_csv.keys())
-        #     # displaying the list of column names
-        #     # print("List of column names : ",list_of_column_names)
+        with open('./data2.csv') as csv_file:
+            # reading the csv file using DictReader
+            csv_reader = csv.DictReader(csv_file)
+            # converting the file to dictionary
+            # by first converting to list
+            # and then converting the list to dict
+            dict_from_csv = dict(list(csv_reader)[0])
+            # making a list from the keys of the dict
+            list_of_column_names = list(dict_from_csv.keys())
+            # displaying the list of column names
+            # print("List of column names : ",list_of_column_names)
 
-        # predictList = []
+        predictList = []
 
-        # predict_result = model.predict(imgResize)
-        # for i in range(112):
-        #     if predict_result[0][i] > 0.8:
-        #         # print(predict_result[0][i])
-        #         predictList.append(list_of_column_names[i].split('-'))
+        predict_result = model.predict(imgResize)
+        for i in range(112):
+            if predict_result[0][i] > 0.8:
+                # print(predict_result[0][i])
+                predictList.append(list_of_column_names[i].split('-'))
 
         # Draw a line in img, prioritize path have 3 point
         haveLine = False
 
-        # for path in predictList:
-        #     if len(path) == 3 and begin in path and end in path:
-        #         cv2.line(img, (int(coordinate[path[0]][0]), int(coordinate[path[0]][1])), (int(coordinate[path[1]][0]), int(coordinate[path[1]][1])), (255, 0, 0), 1)
-        #         cv2.line(img, (int(coordinate[path[1]][0]), int(coordinate[path[1]][1])), (int(coordinate[path[2]][0]), int(coordinate[path[2]][1])), (255, 0, 0), 1)
-        #         haveLine = True
-        #         break
+        for path in predictList:
+            if len(path) == 3 and begin in path and end in path:
+                cv2.line(img, (int(coordinate[path[0]][0]), int(coordinate[path[0]][1])), (int(coordinate[path[1]][0]), int(coordinate[path[1]][1])), (255, 0, 0), 1)
+                cv2.line(img, (int(coordinate[path[1]][0]), int(coordinate[path[1]][1])), (int(coordinate[path[2]][0]), int(coordinate[path[2]][1])), (255, 0, 0), 1)
+                haveLine = True
+                break
         if haveLine == False:
             cv2.line(img, (int(coordinate[begin][0]), int(coordinate[begin][1])), (int(coordinate[end][0]), int(coordinate[end][1])), (255, 0, 0), 1)
     return (img, (int(beginPoint[0]), int(beginPoint[1]), int(endPoint[0]), int(endPoint[1])))

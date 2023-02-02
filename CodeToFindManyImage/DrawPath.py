@@ -8,21 +8,14 @@ from InvidistModule import *
 # zv = [23,24,25,26,28,30,32,34,37,40,43,45.6,32.5,35.6,40.5  ,2,3,5,7,1.6,2.6,1.5,2.8,2.2,1.9,1.7,1.2,0.5,0.5,0.5   ,63,60.1,62,61.5,60.5     ,5,10,15,20,25,30,35,40,45,50,55,60,62,5,10,15,20,25,30,35,40,45,50,55,60]
 # values = [17,18,17,18,19,20,18,17,18,18,17,19,17,18,19   ,2,3,2,3,1,1,3,1,1,2,1,3,1,3,3    ,7,8,7,9,7     ,8,7,14,7,6,7,10,4,7,1,4,9,7,12,3,4,10,2,8,7,4,12,7,4,8]
 
-xv = [5,10,15,20,25,30,35,40,45,50,55,60,63,42,44,46]
-yv = [5,10,15,20,25,30,35,40,45,50,55,60,63,22,24,26]
-zv = [1,2,3,4,5,6,7,8,9,10,8,7,6,2,3,1]
-values = [2,3,4,17,18,10,7,8,7,3,2,1,2,17,18,16]
-for i in range(0,3,1):
-    save(invDist_in(xv,yv,zv,values,zi=i*2,xsize = 64,ysize = 64),20,i)
-    print(i)
+# xv_in = [10,30,50,70,90,110,130,150,170,190,210,230,250,270,290,310,330,350,370,390,410,430,450,470,490,510,234,345,456,478]
+# yv_in = [15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345,360,375,390,405,420,435,450]
+# values_in = [2,4,6,8,10,12,14,16,18,20,19,17,15,13,11,9,7,5,3,1,1,1,4,9,3,2,3,8,9,4]
 
-img0 = cv2.imread('Images/Img0.png')
-img1 = cv2.imread('Images/Img1.png')
-img2 = cv2.imread('Images/Img2.png')
+# risk_matrix_ = invDist(xv_in, yv_in, values_in, xsize=512, ysize=512, power=1, smoothing=20)
 
-layer = [img0, img1, img2] 
-beginEndPoint = (0,0, 60, 40)
-currentLayer = 1
+img0 = cv2.imread('Images/3.png')
 
-for i in range(currentLayer -1, currentLayer +2):
-    cv2.imwrite("./Path/Path" + str(i) + ".png", backTracking(layer[i], beginEndPoint))
+beginEndPoint = (36,44, 404, 500)
+
+cv2.imwrite("./Path/Path_model.png", backTracking(img0, beginEndPoint))
