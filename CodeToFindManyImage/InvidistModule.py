@@ -57,12 +57,16 @@ def invDist_out(xv,yv,zv,values,zi,xsize=100,ysize=100,power=1):
 def NormalizeData(data,max_col):
     return data / max_col
 
+def NormalizeData_smooth(data):
+    return (data - np.min(data)) / (np.max(data) - np.min(data))
+
 def ConvertRange(old_value,old_min,old_max,new_min,new_max):
     return ( (old_value - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min
 
 def save(layer,max_col, zi):
     #normalize matrix to (0,1)
-    normalized_matrix =  NormalizeData(layer,max_col)
+    # normalized_matrix =  NormalizeData(layer,max_col)
+    normalized_matrix = (layer-np.min(layer))/(np.max(layer)-np.min(layer))
     #print(normalized_matrix)
 
     #convert from range(0,1) to range (0.5 , 0.9)
@@ -135,3 +139,138 @@ def invDist(xv,yv,values,xsize=100,ysize=100,power=2,smoothing=0):
         for y in range(0,ysize):
             valuesGrid[y][x] = pointValue(x,y,power,smoothing,xv,yv,values)
     return valuesGrid
+
+theWay = []
+
+def ConvertList(way):
+    l = []
+    for i in range(len(way)-1, -1,-1):
+        l.append(way[i])
+    return l
+
+def FindTheWay(beginX, beginY, endX, endY, Close):
+    way = [(endX,endY)]
+    while True: 
+        if way[-1] == (beginX, beginY):
+            return ConvertList(way)
+            
+        for Point in Close:
+            if Point[0][0] == way[-1][0] and Point[0][1] == way[-1][1]:
+                way.append((Point[1][0], Point[1][1]))
+                break
+        
+#Define class PriorityQueue for Astar
+class PriorityQueue():
+    def __init__(self):
+        self.queue = []
+  
+    def __str__(self):
+        return ' ,'.join([str(i) for i in self.queue])
+  
+    # for checking if the queue is empty
+    def isEmpty(self):
+        return len(self.queue) == 0
+    
+    def FindOut(self, a):
+        for i in range(len(self.queue)):
+            if a == self.queue[i][0]:
+                return True
+        return False
+    
+    def top(self):
+        return self.queue[0]
+  
+    # for inserting an element in the queue
+    def insert(self, data):
+        self.queue.append(data)
+  
+    # for popping an element based on Priority
+    def delete(self, dic,Hx):
+        try:
+            max = 0
+            for i in range(len(self.queue)):
+                if abs(dic[self.queue[i][0]]) < abs(dic[self.queue[max][0]]):
+                    max = i
+            item = self.queue[max]
+            del self.queue[max]
+            return item
+        except IndexError:
+            print()
+            exit()
+
+def Astar(size, matrixHx, beginX, beginY, endX, endY):
+    
+    matrixGx = []
+    for i in range(size): 
+        l = []
+        for j in range(size): 
+            l.append(0)
+        matrixGx.append(l)
+    ''' for i in range(size):
+       for j in range(size):
+            matrixGx[i][j] = (abs(beginX-j) + abs(beginY-i)) * 0.001 '''
+    # print("\nMatrixGx: ")    
+    # for i in range(size):
+    #     print(matrixGx[i])
+    
+    #Declare matrixFx:
+    matrixFx = []
+    for i in range(size+1): 
+        l = []
+        for j in range(size+1): 
+            l.append(0)
+        matrixFx.append(l)
+    for i in range(size):
+        for j in range(size):
+            matrixFx[i][j] = (matrixGx[i][j] + matrixHx[i][j])
+        
+    
+    l = []
+    for i in range(size):
+        for j in range(size):
+            l.append([(i,j, matrixFx[j][i]), matrixFx[j][i]])
+    data = dict(l)
+    
+    #print(data[(beginX, beginY)])
+    #print(data[(endX, endY)])
+
+    #Declare Open, close queue
+    Open = PriorityQueue()
+    Close = PriorityQueue()
+    Open.insert( [( beginX, beginY, matrixFx[beginY][beginX] ) , (-1,-1, 0) ] )
+    while(True):
+        if Open.isEmpty == True:
+            print("Tim kiem that bai")
+            return
+        
+        v = Open.delete(data, matrixHx)
+        Close.insert(v)
+        
+        ##print("Duyet: ", v, data[v[0]])
+        
+        if v[0][0] == endX and v[0][1] == endY:
+            print("Tim kiem thanh cong")
+            Way = FindTheWay(beginX, beginY, endX, endY, Close.queue)
+            for Point in Way:
+                theWay.append(Point)
+            return
+        
+        
+        nearPoints = [(v[0][0]+1, v[0][1], matrixFx[ v[0][1] ][ v[0][0]+1 ]),
+                      (v[0][0]+1, v[0][1]+1, matrixFx[v[0][1]+1][ v[0][0]+1]),
+                      (v[0][0], v[0][1]+1, matrixFx[v[0][1]+1][ v[0][0]]), 
+                      (v[0][0]-1, v[0][1]+1, matrixFx[v[0][1]+1][ v[0][0]-1]), 
+                      (v[0][0]-1, v[0][1], matrixFx[v[0][1]][ v[0][0]-1])]
+        for Point in nearPoints:
+            if Point[0] < 0 or Point[1] < 0 or Point[0] >= size or Point[1] >= size or (Close.FindOut(Point) and (data[v[0]] + Point[2]) >= data[Point]):
+                continue
+            if Open.FindOut(Point) and (data[v[0]] + Point[2]) < data[Point]: 
+                for openPoint in Open.queue:
+                    if openPoint[0] == Point:
+                        openPoint[1] = v[0]
+                        data[openPoint] = data[v[0]] + Point[2]
+                        continue
+            if Open.FindOut(Point) and (data[v[0]] + Point[2]) >= data[Point]: 
+                continue
+            data[Point] = data[v[0]] + Point[2];
+            Open.insert([Point, v[0]])

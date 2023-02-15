@@ -1,6 +1,7 @@
 from ModelFunction import backTracking
 import cv2
 from InvidistModule import *
+import time
 
 
 # xv = [20,25,30,35,40,22,27,32,37,45,23.5,26.5,31.5,36.5,40.5  ,40,45,31.5,35,52,25,30,35,40,45.5,50,55,60,62,63,  12,23,14,15,16   ,5,15,25,35,40,45,50,55,57,58,60,62,62.5,47,36,25,15,7,2,3,4,5.5,3.2,6.2,5]
@@ -11,11 +12,30 @@ from InvidistModule import *
 # xv_in = [10,30,50,70,90,110,130,150,170,190,210,230,250,270,290,310,330,350,370,390,410,430,450,470,490,510,234,345,456,478]
 # yv_in = [15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345,360,375,390,405,420,435,450]
 # values_in = [2,4,6,8,10,12,14,16,18,20,19,17,15,13,11,9,7,5,3,1,1,1,4,9,3,2,3,8,9,4]
+xv_in = [0,5,10,15,20,25,30,35,40,45,50,55,60,62,63,0,5,10,15,20,25,30,35,40,45,50,55,60,62,63,32]
+yv_in = [0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,63,54,52,10,13,17,30,44,33,22,10,7,2,27,39,32]
+values_in = [14,7,6,3,2,15,14,2,10,3,4,1,10,9,15,7,8,4,10,14,17,2,4,4,3,10,15,13,7,1,9]
 
-# risk_matrix_ = invDist(xv_in, yv_in, values_in, xsize=512, ysize=512, power=1, smoothing=20)
+risk_matrix_ = invDist(xv_in, yv_in, values_in, xsize=64, ysize=64, power=1, smoothing=20)
+# # print(risk_matrix_[15][10])
+# save(risk_matrix_,20,3)
+start_time = time.time()
+img0 = cv2.imread('Images/1.png')
 
-img0 = cv2.imread('Images/3.png')
-
-beginEndPoint = (36,44, 404, 500)
+# beginEndPoint = (36,44, 404, 500)
+beginEndPoint = (0,63, 42, 0)
 
 cv2.imwrite("./Path/Path_model.png", backTracking(img0, beginEndPoint))
+end_time = time.time()
+
+risk =0
+img = cv2.imread('./Path/Path_model.png')
+# print(img[44][36])
+for x in range(64):
+    for y in range(64):
+        if(img[y][x][0] == 255 and img[y][x][1] == 0 and img[y][x][2] == 0):
+            risk += risk_matrix_[y][x]
+
+print("model")
+print("Time:",end_time-start_time)
+print("Risk:",risk)
